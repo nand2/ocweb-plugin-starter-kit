@@ -1,0 +1,9 @@
+{
+  "name": "ocweb-theme-about-me",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "ocweb": "^0.0.1"
+  }
+}

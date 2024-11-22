@@ -1,0 +1,37 @@
+{
+  "title": "My name",
+  "subtitle": "My job",
+  "email": "xx@xx.com",
+  "location": "this place",
+  "menu": [
+    {
+      "title": "Home",
+      "path": "/",
+      "markdownFile": "pages/home.md"
+    },
+    {
+      "title": "Publications",
+      "path": "/publications",
+      "markdownFile": "pages/publications.md"
+    }
+  ],
+  "externalLinks": [
+    {
+      "title": "OCWeb.eth (with web3://)",
+      "url": "web3://ocweb.eth"
+    },
+    {
+      "title": "OCWeb.eth (without web3://)",
+      "url": "ocweb.eth"
+    },
+    {
+      "title": "Twitter (with https://)",
+      "url": "https://twitter.com/xxx"
+    },
+    {
+      "title": "Twitter (without https://)",
+      "url": "twitter.com/xxx"
+    }
+  ],
+  "userCssFile": "custom/user.css"
+}
