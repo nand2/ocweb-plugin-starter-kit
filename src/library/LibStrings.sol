@@ -28,7 +28,7 @@ library LibStrings {
     }
 
     // From https://ethereum.stackexchange.com/questions/31457/substring-in-solidity
-    function substring(string calldata str, uint start, uint end) external pure returns(string memory) {
+    function substring(string calldata str, uint start, uint end) internal pure returns(string memory) {
         return str[start:end];
     }
 
@@ -83,7 +83,7 @@ library LibStrings {
     }
 
     // From https://ethereum.stackexchange.com/questions/10932/how-to-convert-string-to-int
-    function stringToUint(string memory s) public pure returns (uint) {
+    function stringToUint(string memory s) internal pure returns (uint) {
         bytes memory b = bytes(s);
         uint result = 0;
         for (uint256 i = 0; i < b.length; i++) {

@@ -13,9 +13,9 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
     IVersionableWebsitePlugin public staticFrontendPlugin;
     IVersionableWebsitePlugin public ocWebAdminPlugin;
 
-    // If your plugin has a admin configuration page / module, you can link it here
+    // If your plugin has a admin configuration page / module, it will be linked here
     IDecentralizedApp public adminFrontend;
-    // If your plugin has frontend files hosted on another OCWebsite (or other web3:// website), you can link it here
+    // If your plugin has frontend files hosted on another OCWebsite (or other web3:// website), it will be linked here
     IDecentralizedApp public frontend;
     
     
@@ -25,8 +25,11 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
     }
     mapping(IVersionableWebsite => mapping(uint => Config)) private configs;
 
-    constructor(IDecentralizedApp _frontend, IVersionableWebsitePlugin _staticFrontendPlugin, IVersionableWebsitePlugin _ocWebAdminPlugin) {
+    constructor(IDecentralizedApp _frontend, IDecentralizedApp _adminFrontend, IVersionableWebsitePlugin _staticFrontendPlugin, IVersionableWebsitePlugin _ocWebAdminPlugin) {
         frontend = _frontend;
+        adminFrontend = _adminFrontend;
+
+        // Dependencies
         staticFrontendPlugin = _staticFrontendPlugin;
         ocWebAdminPlugin = _ocWebAdminPlugin;
     }
@@ -155,34 +158,33 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                     headers[0].value = "text/html";
                 }
                 // /index/[uint]
-                else if(resource.length >= 1 && resource.length <= 2 && ToString.compare(resource[0], "index")) {
+                else if(resource.length >= 1 && resource.length <= 2 && Strings.equal(resource[0], "index")) {
                     uint page = 1;
                     if(resource.length == 2) {
-                        page = ToString.stringToUint(resource[1]);
+                        page = LibStrings.stringToUint(resource[1]);
+                        if(page == 0) {
+                            statusCode = 404;
+                            return (statusCode, body, headers);
+                        }
                     }
-                    if(page == 0) {
-                        statusCode = 404;
-                    }
-                    else {
-                        body = "<html>"
-                                "<head>"
-                                    "<title>Starter Kit Plugin</title>"
-                                "</head>"
-                                "<body>"
-                                    "<h1>Index page " + ToString.uintToString(page) + "</h1>"
-                                    "<p>This is the index page " + ToString.uintToString(page) + "</p>"
-                                "</body>"
-                            "</html>";
-                        statusCode = 200;
-                        headers = new KeyValue[](1);
-                        headers[0].key = "Content-type";
-                        headers[0].value = "text/html";
-                    }
+                    body = string.concat("<html>"
+                            "<head>"
+                                "<title>Starter Kit Plugin</title>"
+                            "</head>"
+                            "<body>"
+                                "<h1>Index page ", Strings.toString(page), "</h1>"
+                                "<p>This is the index page ", Strings.toString(page), "</p>"
+                            "</body>"
+                        "</html>");
+                    statusCode = 200;
+                    headers = new KeyValue[](1);
+                    headers[0].key = "Content-type";
+                    headers[0].value = "text/html";
                 }
                 // /api/basefee
                 else if(resource.length == 2 && Strings.equal(resource[0], "api") && Strings.equal(resource[1], "basefee")) {
                     uint baseFee = block.basefee;
-                    body = "{ \"baseFee\": " + ToString.uintToString(baseFee) + " }";
+                    body = string.concat("{ \"baseFee\": ",  Strings.toString(baseFee), " }");
                     statusCode = 200;
                     headers = new KeyValue[](1);
                     headers[0].key = "Content-type";
@@ -300,9 +302,9 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
         for(uint i = 0; i < responseHeaders.length; i++) {
             if(LibStrings.compare(responseHeaders[i].key, "Cache-control") && LibStrings.compare(responseHeaders[i].value, "evm-events")) {
                 string memory path = "/";
-                for(uint j = 0; j < newResource.length; j++) {
-                    path = string.concat(path, newResource[j]);
-                    if(j < newResource.length - 1) {
+                for(uint j = 0; j < proxiedResource.length; j++) {
+                    path = string.concat(path, proxiedResource[j]);
+                    if(j < proxiedResource.length - 1) {
                         path = string.concat(path, "/");
                     }
                 }
@@ -315,7 +317,7 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                         }
                     }
                 }
-                headers[i].value = string.concat("evm-events=", "\"", LibStrings.toHexString(address(frontend)), path, "\"");
+                responseHeaders[i].value = string.concat("evm-events=", "\"", LibStrings.toHexString(address(frontend)), path, "\"");
             }
         }
 
