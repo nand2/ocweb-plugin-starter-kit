@@ -79,7 +79,7 @@ cd $ROOT_FOLDER/frontend
 npm run build
 
 # Create an OCWebsite for the frontend
-OCWEBSITE_NAME=starterk18 # You will need to change this (14 chars max)
+OCWEBSITE_NAME=starterk # You will need to change this (14 chars max)
 exec 5>&1
 OUTPUT="$(PRIVATE_KEY=$PRIVATE_KEY \
   npx ocweb --rpc $RPC_URL --skip-tx-validation mint --factory-address $OCWEBSITE_FACTORY_ADDRESS $CHAIN_ID $OCWEBSITE_NAME | tee >(cat - >&5))"
