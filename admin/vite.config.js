@@ -7,7 +7,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: './src/library.js',
-      name: 'themeAboutMeAdminPanels',
+      name: 'starterKitAdminPanels',
       formats: ['umd'],
       fileName: (format) => `admin.${format}.js`,
     },

@@ -98,6 +98,28 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
         external view override returns (uint statusCode, string memory body, KeyValue[] memory headers)
     {
         //
+        // Serve the admin UMD module, whose files are stored in an outside OCWebsite
+        // The path /plugins/starter-kit/* will be proxied to /admin/* in the adminFrontend OCWebsite
+        //
+
+        if (resource.length >= 2 && Strings.equal(resource[0], "plugins") && Strings.equal(resource[1], "starter-kit")) {
+            string[] memory proxiedResource = new string[](resource.length - 1);
+            proxiedResource[0] = "admin";
+            for (uint i = 2; i < resource.length; i++) {
+                proxiedResource[i - 1] = resource[i];
+            }
+
+            // Do the proxy call to the adminFrontend OCWebsite
+            (statusCode, body, headers) = adminFrontend.request(proxiedResource, params);
+
+            // ERC-7774 cache-control header alteration
+            headers = alterProxiedRequestResponseCacheHeaders(adminFrontend, proxiedResource, params, headers);
+
+            return (statusCode, body, headers);
+        }
+
+
+        //
         // Serve the main frontend. 2 options : directly from plugin, or proxying from another OCWebsite
         //
 
@@ -210,28 +232,6 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                 return (statusCode, body, headers);
             }
         }
-
-        //
-        // Serve the admin UMD module, whose files are stored in an outside OCWebsite
-        // The path /plugins/starter-kit/* will be proxied to /admin/* in the adminFrontend OCWebsite
-        //
-
-        if (resource.length >= 2 && Strings.equal(resource[0], "plugins") && Strings.equal(resource[1], "starter-kit")) {
-            string[] memory proxiedResource = new string[](resource.length - 1);
-            proxiedResource[0] = "admin";
-            for (uint i = 2; i < resource.length; i++) {
-                proxiedResource[i - 1] = resource[i];
-            }
-
-            // Do the proxy call to the adminFrontend OCWebsite
-            (statusCode, body, headers) = adminFrontend.request(proxiedResource, params);
-
-            // ERC-7774 cache-control header alteration
-            headers = alterProxiedRequestResponseCacheHeaders(adminFrontend, proxiedResource, params, headers);
-
-            return (statusCode, body, headers);
-        }
-
 
     }
 
