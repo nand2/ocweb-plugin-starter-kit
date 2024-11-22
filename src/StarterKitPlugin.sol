@@ -135,7 +135,8 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                             "<body>"
                                 "<h1>Welcome to the Starter Kit Plugin</h1>"
                                 "<p>This is a starter kit to make OCWebsite plugins</p>"
-                                "<p>Base Fee fetched: <span id='baseFee'>Loading...</span></p>"
+                                "<p>Loading data using the JS <em>fetch()</em> function: Current gas price: <span id='baseFee'>Loading...</span> wei</p>"
+                                "<p>Go to <a href='/page/1'>Page 1</a></p>"
                                 "<script>"
                                     "function fetchBaseFee() {"
                                         "fetch('/api/basefee')"
@@ -157,8 +158,8 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                     headers[0].key = "Content-type";
                     headers[0].value = "text/html";
                 }
-                // /index/[uint]
-                else if(resource.length >= 1 && resource.length <= 2 && Strings.equal(resource[0], "index")) {
+                // /page/[uint]
+                else if(resource.length >= 1 && resource.length <= 2 && Strings.equal(resource[0], "page")) {
                     uint page = 1;
                     if(resource.length == 2) {
                         page = LibStrings.stringToUint(resource[1]);
@@ -172,8 +173,9 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                                 "<title>Starter Kit Plugin</title>"
                             "</head>"
                             "<body>"
-                                "<h1>Index page ", Strings.toString(page), "</h1>"
-                                "<p>This is the index page ", Strings.toString(page), "</p>"
+                                "<h1>Page ", Strings.toString(page), "</h1>"
+                                "<p>This is the page page ", Strings.toString(page), "</p>"
+                                "<p>Go to <a href='/page/", Strings.toString(page + 1), "'>Page ", Strings.toString(page + 1), "</a></p>"
                             "</body>"
                         "</html>");
                     statusCode = 200;
@@ -190,6 +192,9 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                     headers[0].key = "Content-type";
                     headers[0].value = "application/json";
                 }
+
+                // Remove the frontend option 1 code including this return statement if you want to use the frontend option 2
+                return (statusCode, body, headers);
 
                 //
                 // Frontend option 2 : 
