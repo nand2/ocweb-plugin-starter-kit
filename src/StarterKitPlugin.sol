@@ -163,15 +163,20 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
 
                 // Frontpage
                 if(unprefixedResource.length == 0) {
-                    body = "<html>"
+                    // Prepare the root path for display
+                    string memory rootPath = "/";
+                    for(uint i = 0; i < config.rootPath.length; i++) {
+                        rootPath = string.concat(rootPath, config.rootPath[i], "/");
+                    }
+
+                    body = string.concat("<html>"
                             "<head>"
                                 "<title>Starter Kit Plugin</title>"
                             "</head>"
                             "<body>"
                                 "<h1>Welcome to the Starter Kit Plugin</h1>"
                                 "<p>This is a starter kit to make OCWebsite plugins</p>"
-                                "<p>Loading data using the JS <em>fetch()</em> function: Current block number: <span id='blocknumber'>Loading...</span></p>"
-                                "<p>Go to <a href='page/1'>Page 1</a></p>"
+                                "<p>Loading data using the JS <em>fetch()</em> function: Current block number: <code id='blocknumber'>Loading...</code></p>"
                                 "<script>"
                                     "function fetchBlocknumber() {"
                                         "fetch('api/blocknumber')"
@@ -186,8 +191,22 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                                     "setInterval(fetchBlocknumber, 12000);"
                                     "fetchBlocknumber();"
                                 "</script>"
+                                "<p>Go to <a href='page/1'>Page 1</a></p>"
+                                "<h3>Config: 2 ways to store and load config</h3>"
+                                "<p>1/ Config stored in plugin smart contract: Root path: <code>", rootPath, "</code></p>"
+                                "<p>2/ Config stored in a file stored via the staticFrontend plugin (here: <code>.config/starter-kit/config.json</code>): <code id='json-config'></code></p>"
+                                "<script>"
+                                    "fetch('/.config/starter-kit/config.json')"
+                                        ".then(response => response.json())"
+                                        ".then(data => {"
+                                            "document.getElementById('json-config').innerText = JSON.stringify(data);"
+                                        "})"
+                                        ".catch(error => {"
+                                            "document.getElementById('json-config').innerText = 'Error fetching config.json: no config saved yet?';"
+                                        "});"
+                                "</script>"
                             "</body>"
-                        "</html>";
+                        "</html>");
                     statusCode = 200;
                     headers = new KeyValue[](1);
                     headers[0].key = "Content-type";
