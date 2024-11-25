@@ -58,8 +58,9 @@ const { data: staticFrontendPluginClient, isLoading: staticFrontendPluginClientL
 const { data: staticFrontend, isLoading: staticFrontendLoading, isFetching: staticFrontendFetching, isError: staticFrontendIsError, error: staticFrontendError, isSuccess: staticFrontendLoaded } = useStaticFrontend(queryClient, props.contractAddress, props.chainId, staticFrontendPlugin.value.plugin, computed(() => props.websiteVersionIndex))
 
 // Get the existing config file infos
+const configFileLocation = '.config/starter-kit/config.json'
 const configFileInfos = computed(() => {
-  return staticFrontendLoaded.value ? staticFrontend.value.files.find(file => file.filePath == 'themes/about-me/config.json') : null
+  return staticFrontendLoaded.value ? staticFrontend.value.files.find(file => file.filePath == configFileLocation) : null
 })
 
 // Fetch the config file content
@@ -78,57 +79,9 @@ watch(fileContent, (newValue) => {
   }
 });
 
-// Computed: Get the list of markdown files (ending by .md), ordered by folder then alphabetically
-const markdownFiles = computed(() => {
-  if (staticFrontend.value == null) {
-    return []
-  }
-
-  return staticFrontend.value.files.filter(file => file.filePath.endsWith('.md')).sort((a, b) => {
-    // Extract the folder and file name
-    const folderA = a.filePath.split('/').slice(0, -1).join('/')
-    const folderB = b.filePath.split('/').slice(0, -1).join('/')
-    const fileA = a.filePath.split('/').slice(-1)[0]
-    const fileB = b.filePath.split('/').slice(-1)[0]
-
-    // Compare the folders
-    if (folderA < folderB) {
-      return -1
-    } else if (folderA > folderB) {
-      return 1
-    }
-
-    // Compare the files
-    if (fileA < fileB) {
-      return -1
-    } else if (fileA > fileB) {
-      return 1
-    }
-  })
-})
-
-// Get the list of existing CSS files
-const existingCssFiles = computed(() => {
-  if(staticFrontend.value == null) {
-    return [];
-  }
-
-  return staticFrontend.value.files.filter(file => file.filePath.endsWith('.css')).sort((a, b) => a.filePath.localeCompare(b.filePath));
-})
-
-// Determine if the menu has duplicate paths
-const menuHasDuplicatePaths = computed(() => {
-  const menuItemPaths = config.value.menu.map(menuItem => menuItem.path)
-  return (new Set(menuItemPaths)).size !== menuItemPaths.length
-})
-
-// Determine if the menu miss an homepage
-const menuMissHomepage = computed(() => {
-  return config.value.menu.find(menuItem => menuItem.path == '/') == null
-})
 
 const hasFormErrors = computed(() => {
-  return config.value.title == '' || config.value.menu.find(menuItem => menuItem.title == '' || menuItem.path == '' || menuItem.markdownFile == null) || config.value.externalLinks.find(link => link.title == '' || link.url == '') || menuHasDuplicatePaths.value || menuMissHomepage.value
+  return config.value.title == ''
 })
 const showFormErrors = ref(false)
 
@@ -146,7 +99,7 @@ const { isPending: prepareAddFilesIsPending, isError: prepareAddFilesIsError, er
 
     // Prepare the files for upload
     const fileInfos = [{
-      filePath: 'themes/about-me/config.json',
+      filePath: configFileLocation,
       size: textData.length,
       contentType: "application/json",
       data: textData,
@@ -169,13 +122,6 @@ const { isPending: prepareAddFilesIsPending, isError: prepareAddFilesIsError, er
 const prepareAddFilesTransactions = async () => {
   showFormErrors.value = false
   addFilesReset()
-
-  // Menu entries: Path: Ensure they start with a /
-  config.value.menu.forEach(menuItem => {
-    if(menuItem.path.length > 0 && !menuItem.path.startsWith('/')) {
-      menuItem.path = '/' + menuItem.path;
-    }
-  })
 
   // Validate the form
   if(hasFormErrors.value) {
@@ -213,7 +159,7 @@ const { isPending: addFilesIsPending, isError: addFilesIsError, error: addFilesE
     await queryClient.invalidateQueries({ queryKey: ['StaticFrontendPluginStaticFrontend', props.contractAddress, props.chainId, props.websiteVersionIndex] })
 
     // Refresh the content of the file
-    await invalidateStaticFrontendFileContentQuery(queryClient, props.contractAddress, props.chainId, props.websiteVersionIndex, 'themes/about-me/config.json')
+    await invalidateStaticFrontendFileContentQuery(queryClient, props.contractAddress, props.chainId, props.websiteVersionIndex, configFileLocation)
 
     // If this was the last transaction
     if(addFileTransactionBeingExecutedIndex.value == filesAdditionTransactions.value.length - 1) {
@@ -247,132 +193,6 @@ const executePreparedAddFilesTransactions = async () => {
       <div>
         <label>Site subtitle <small>Optional</small></label>
         <input v-model="config.subtitle" placeholder="Short description" :disabled="isLockedLoaded && isLocked || websiteVersion.locked || prepareAddFilesIsPending || addFilesIsPending" />
-      </div>
-    </div>
-
-    <div class="form-fields">
-      <div>
-        <label>Email <small>Optional</small></label>
-        <input v-model="config.email" placeholder="abcd@example.com" :disabled="isLockedLoaded && isLocked || websiteVersion.locked || prepareAddFilesIsPending || addFilesIsPending" />
-      </div>
-
-      <div>
-        <label>Location <small>Optional</small></label>
-        <input v-model="config.location" placeholder="City, ..." :disabled="isLockedLoaded && isLocked || websiteVersion.locked || prepareAddFilesIsPending || addFilesIsPending" />
-      </div>
-
-      <div>
-        <label>Advanced: Custom CSS <small>Optional</small></label>
-        <select v-model="config.userCssFile" class="form-select" :disabled="isLockedLoaded && isLocked || websiteVersion.locked || prepareAddFilesIsPending || addFilesIsPending">
-          <option :value="null">- Select an existing CSS file -</option>
-          <option v-for="cssFile in existingCssFiles" :key="cssFile.filePath" :value="cssFile.filePath">{{ cssFile.filePath }}</option>
-        </select>
-        <div class="text-muted" style="font-size: 0.7em;">
-          Activate the developer mode and upload a CSS file in the "Files" section to use it here.
-        </div>
-      </div>
-    </div>
-
-    <div class="menu">
-      <h3 style="margin-bottom: 0.3em; display: flex; gap: 0.4em; align-items:center;">
-        Menu
-        <button @click.stop.prevent="config.menu.push({title: '', path: '', markdownFile: null})" class="sm" style="font-size: 0.7em; display: flex; gap: 0.3em; align-items: center;" v-if="isLockedLoaded && isLocked == false && websiteVersion.locked == false">
-          <PlusLgIcon /> Add
-        </button>
-      </h3>
-
-      <div class="table-header">
-        <div>
-          Page
-        </div>
-        <div>
-          Title
-        </div>
-        <div>
-          Path
-        </div>
-        <div></div>
-      </div>
-
-      <div v-for="(menuItem, index) in config.menu" :key="index">
-        <div class="table-row">
-          <div>
-            <select v-model="menuItem.markdownFile" :disabled="isLockedLoaded && isLocked || websiteVersion.locked || markdownFiles.length == 0 || prepareAddFilesIsPending || addFilesIsPending">
-                <option :value="null">- Select a page -</option>
-                <option v-for="file in markdownFiles" :value="file.filePath">{{ file.filePath }}</option>
-            </select>
-          </div>
-          <div>
-            <input v-model="menuItem.title" placeholder="Menu title" :disabled="isLockedLoaded && isLocked || websiteVersion.locked || prepareAddFilesIsPending || addFilesIsPending" />
-          </div>
-          <div>
-            <input v-model="menuItem.path" placeholder="e.g. / (homepage), /publications, ..." :disabled="isLockedLoaded && isLocked || websiteVersion.locked || prepareAddFilesIsPending || addFilesIsPending" />
-          </div>
-          <div style="line-height: 0em;" v-if="isLockedLoaded && isLocked == false && websiteVersion.locked == false">
-            <a @click.stop.prevent="config.menu.splice(index, 1)" class="white">
-              <TrashIcon />
-            </a>
-          </div>
-        </div>
-
-        <div class="text-warning text-80" style="margin-left:0.75rem;" v-if="markdownFiles.length == 0 && index == config.menu.length - 1">
-          No pages available. Create pages in the "Pages" section.
-        </div>
-        
-        <div class="text-danger text-80 error-message" v-if="showFormErrors && (menuItem.title == '' || menuItem.path == '' || menuItem.markdownFile == null)">
-          The page, title and path are required
-        </div>
-      </div>
-    </div>
-    <div v-if="showFormErrors && menuHasDuplicatePaths" class="text-danger text-80 error-message" style="margin-left:0.75rem;">
-      The menu has duplicate paths
-    </div>
-    <div v-if="showFormErrors && config.menu.length > 0 && menuMissHomepage" class="text-danger text-80 error-message" style="margin-left:0.75rem;">
-      The menu is missing an homepage
-    </div>
-    <div v-if="config.menu.length == 0" class="text-muted" style="text-align: center; padding: 1em 0em;">
-      No menu entries
-    </div>
-
-    <div class="outgoing-links">
-      <h3 style="margin-bottom: 0.3em; display: flex; gap: 0.4em; align-items:center;">
-        External links
-        <button @click.stop.prevent="config.externalLinks.push({title: '', url: ''})" class="sm" style="font-size: 0.7em; display: flex; gap: 0.3em; align-items: center;" v-if="isLockedLoaded && isLocked == false && websiteVersion.locked == false">
-          <PlusLgIcon /> Add
-        </button>
-      </h3>
-
-      <div class="table-header">
-        <div>
-          Title
-        </div>
-        <div>
-          URL
-        </div>
-        <div></div>
-      </div>
-
-      <div v-for="(link, index) in config.externalLinks" :key="index">
-        <div class="table-row">
-          <div>
-            <input v-model="link.title" placeholder="Link title" :disabled="isLockedLoaded && isLocked || websiteVersion.locked || prepareAddFilesIsPending || addFilesIsPending" />
-          </div>
-          <div>
-            <input v-model="link.url" placeholder="web3://example.eth, https://example.com, ..." :disabled="isLockedLoaded && isLocked || websiteVersion.locked || prepareAddFilesIsPending || addFilesIsPending" />
-          </div>
-          <div style="line-height: 0em;" v-if="isLockedLoaded && isLocked == false && websiteVersion.locked == false">
-            <a @click.stop.prevent="config.externalLinks.splice(index, 1)" class="white">
-              <TrashIcon />
-            </a>
-          </div>
-        </div>
-
-        <div class="text-danger text-80 error-message" v-if="showFormErrors && (link.title == '' || link.url == '')">
-          The title and URL are required
-        </div>
-      </div>
-      <div v-if="config.externalLinks.length == 0" class="text-muted" style="text-align: center; padding: 1em 0em;">
-        No external links
       </div>
     </div>
 
