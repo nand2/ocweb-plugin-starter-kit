@@ -1,49 +1,5 @@
 export const abi = [
   {
-    inputs: [
-      {
-        internalType: "contract IDecentralizedApp",
-        name: "_frontend",
-        type: "address"
-      },
-      {
-        internalType: "contract IVersionableWebsitePlugin",
-        name: "_staticFrontendPlugin",
-        type: "address"
-      },
-      {
-        internalType: "contract IVersionableWebsitePlugin",
-        name: "_ocWebAdminPlugin",
-        type: "address"
-      }
-    ],
-    stateMutability: "nonpayable",
-    type: "constructor"
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract IVersionableWebsite",
-        name: "website",
-        type: "address"
-      },
-      {
-        internalType: "uint256",
-        name: "fromFrontendIndex",
-        type: "uint256"
-      },
-      {
-        internalType: "uint256",
-        name: "toFrontendIndex",
-        type: "uint256"
-      }
-    ],
-    name: "copyFrontendSettings",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function"
-  },
-  {
     inputs: [],
     name: "frontend",
     outputs: [
@@ -79,7 +35,7 @@ export const abi = [
             type: "string[]"
           }
         ],
-        internalType: "struct ThemeAboutMePlugin.Config",
+        internalType: "struct StarterKitPluginClient.Config",
         name: "",
         type: "tuple"
       }
@@ -190,142 +146,6 @@ export const abi = [
         type: "uint256"
       },
       {
-        internalType: "string[]",
-        name: "resource",
-        type: "string[]"
-      },
-      {
-        components: [
-          {
-            internalType: "string",
-            name: "key",
-            type: "string"
-          },
-          {
-            internalType: "string",
-            name: "value",
-            type: "string"
-          }
-        ],
-        internalType: "struct KeyValue[]",
-        name: "params",
-        type: "tuple[]"
-      }
-    ],
-    name: "processWeb3Request",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "statusCode",
-        type: "uint256"
-      },
-      {
-        internalType: "string",
-        name: "body",
-        type: "string"
-      },
-      {
-        components: [
-          {
-            internalType: "string",
-            name: "key",
-            type: "string"
-          },
-          {
-            internalType: "string",
-            name: "value",
-            type: "string"
-          }
-        ],
-        internalType: "struct KeyValue[]",
-        name: "headers",
-        type: "tuple[]"
-      }
-    ],
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract IVersionableWebsite",
-        name: "website",
-        type: "address"
-      },
-      {
-        internalType: "uint256",
-        name: "websiteVersionIndex",
-        type: "uint256"
-      },
-      {
-        internalType: "string[]",
-        name: "resource",
-        type: "string[]"
-      },
-      {
-        components: [
-          {
-            internalType: "string",
-            name: "key",
-            type: "string"
-          },
-          {
-            internalType: "string",
-            name: "value",
-            type: "string"
-          }
-        ],
-        internalType: "struct KeyValue[]",
-        name: "params",
-        type: "tuple[]"
-      }
-    ],
-    name: "rewriteWeb3Request",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "rewritten",
-        type: "bool"
-      },
-      {
-        internalType: "string[]",
-        name: "newResource",
-        type: "string[]"
-      },
-      {
-        components: [
-          {
-            internalType: "string",
-            name: "key",
-            type: "string"
-          },
-          {
-            internalType: "string",
-            name: "value",
-            type: "string"
-          }
-        ],
-        internalType: "struct KeyValue[]",
-        name: "newParams",
-        type: "tuple[]"
-      }
-    ],
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract IVersionableWebsite",
-        name: "website",
-        type: "address"
-      },
-      {
-        internalType: "uint256",
-        name: "websiteVersionIndex",
-        type: "uint256"
-      },
-      {
         components: [
           {
             internalType: "string[]",
@@ -333,7 +153,7 @@ export const abi = [
             type: "string[]"
           }
         ],
-        internalType: "struct ThemeAboutMePlugin.Config",
+        internalType: "struct StarterKitPluginClient.Config",
         name: "_config",
         type: "tuple"
       }

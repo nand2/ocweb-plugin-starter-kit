@@ -50,9 +50,22 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
         dependencies[0] = staticFrontendPlugin;
         dependencies[1] = ocWebAdminPlugin;
 
-        AdminPanel[] memory adminPanels = new AdminPanel[](1);
-        // This admin panel is a JS UMD module for the primary "Admin interface" plugin
+        AdminPanel[] memory adminPanels = new AdminPanel[](2);
+        // These 2 admin panels use the same JS UMD module for the primary "Admin interface" plugin
+        // The first one demonstrate the saving of settings in the plugin contract itself (via getConfig/setConfig)
+        // The second one demonstrate the saving of settings in a file stored via the staticFrontend plugin
         adminPanels[0] = AdminPanel({
+            title: "Starter Kit Plugin",
+            // The URL to the JS UMD module. It can be a relative or absolute web3:// URL
+            url: "/plugins/starter-kit/admin.umd.js",
+            // This indicate that this is a JS UMD module for the admin interface provided by the ocWebAdminPlugin plugin
+            moduleForGlobalAdminPanel: ocWebAdminPlugin,
+            // Hint to where to display the admin panel
+            // - Primary : Displayed as a tab in the main admin interface
+            // - Secondary : Displayed when using the "configure" button in the plugin admin page
+            panelType: AdminPanelType.Secondary
+        });
+        adminPanels[1] = AdminPanel({
             title: "Starter Kit Plugin",
             // The URL to the JS UMD module. It can be a relative or absolute web3:// URL
             url: "/plugins/starter-kit/admin.umd.js",
@@ -149,7 +162,7 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                 //
 
                 // Frontpage
-                if(resource.length == 0) {
+                if(unprefixedResource.length == 0) {
                     body = "<html>"
                             "<head>"
                                 "<title>Starter Kit Plugin</title>"
@@ -157,21 +170,21 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                             "<body>"
                                 "<h1>Welcome to the Starter Kit Plugin</h1>"
                                 "<p>This is a starter kit to make OCWebsite plugins</p>"
-                                "<p>Loading data using the JS <em>fetch()</em> function: Current gas price: <span id='baseFee'>Loading...</span> wei</p>"
-                                "<p>Go to <a href='/page/1'>Page 1</a></p>"
+                                "<p>Loading data using the JS <em>fetch()</em> function: Current block number: <span id='blocknumber'>Loading...</span></p>"
+                                "<p>Go to <a href='page/1'>Page 1</a></p>"
                                 "<script>"
-                                    "function fetchBaseFee() {"
-                                        "fetch('/api/basefee')"
+                                    "function fetchBlocknumber() {"
+                                        "fetch('api/blocknumber')"
                                             ".then(response => response.json())"
                                             ".then(data => {"
-                                                "document.getElementById('baseFee').innerText = data.baseFee;"
+                                                "document.getElementById('blocknumber').innerText = data.blocknumber;"
                                             "})"
                                             ".catch(error => {"
                                                 "console.error('Error fetching base fee:', error);"
                                             "});"
                                     "}"
-                                    "setInterval(fetchBaseFee, 12000);"
-                                    "fetchBaseFee();"
+                                    "setInterval(fetchBlocknumber, 12000);"
+                                    "fetchBlocknumber();"
                                 "</script>"
                             "</body>"
                         "</html>";
@@ -181,10 +194,10 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                     headers[0].value = "text/html";
                 }
                 // /page/[uint]
-                else if(resource.length >= 1 && resource.length <= 2 && Strings.equal(resource[0], "page")) {
+                else if(unprefixedResource.length >= 1 && unprefixedResource.length <= 2 && Strings.equal(unprefixedResource[0], "page")) {
                     uint page = 1;
-                    if(resource.length == 2) {
-                        page = LibStrings.stringToUint(resource[1]);
+                    if(unprefixedResource.length == 2) {
+                        page = LibStrings.stringToUint(unprefixedResource[1]);
                         if(page == 0) {
                             statusCode = 404;
                             return (statusCode, body, headers);
@@ -197,7 +210,7 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                             "<body>"
                                 "<h1>Page ", Strings.toString(page), "</h1>"
                                 "<p>This is the page page ", Strings.toString(page), "</p>"
-                                "<p>Go to <a href='/page/", Strings.toString(page + 1), "'>Page ", Strings.toString(page + 1), "</a></p>"
+                                "<p>Go to <a href='", Strings.toString(page + 1), "'>Page ", Strings.toString(page + 1), "</a></p>"
                             "</body>"
                         "</html>");
                     statusCode = 200;
@@ -205,10 +218,10 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                     headers[0].key = "Content-type";
                     headers[0].value = "text/html";
                 }
-                // /api/basefee
-                else if(resource.length == 2 && Strings.equal(resource[0], "api") && Strings.equal(resource[1], "basefee")) {
-                    uint baseFee = block.basefee;
-                    body = string.concat("{ \"baseFee\": ",  Strings.toString(baseFee), " }");
+                // /api/blocknumber
+                else if(unprefixedResource.length == 2 && Strings.equal(unprefixedResource[0], "api") && Strings.equal(unprefixedResource[1], "blocknumber")) {
+                    uint blocknumber = block.number;
+                    body = string.concat("{ \"blocknumber\": ",  Strings.toString(blocknumber), " }");
                     statusCode = 200;
                     headers = new KeyValue[](1);
                     headers[0].key = "Content-type";

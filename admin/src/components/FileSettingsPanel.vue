@@ -9,7 +9,6 @@ import PlusLgIcon from './Icons/PlusLgIcon.vue';
 import TrashIcon from './Icons/TrashIcon.vue';
 import SaveIcon from './Icons/SaveIcon.vue';
 import { defaultConfig } from '../assets/defaultConfig';
-import AdminSettingsPanel from './AdminSettingsPanel.vue';
 
 const props = defineProps({
   contractAddress: {
@@ -236,16 +235,6 @@ const executePreparedAddFilesTransactions = async () => {
 
 <template>
   <div class="admin">
-    <div style="margin-bottom: 1em;">
-      <AdminSettingsPanel
-        :contractAddress
-        :chainId
-        :websiteVersion
-        :websiteVersionIndex
-        :websiteClient
-        :pluginsInfos
-        :pluginInfos />
-    </div>
 
     <div class="form-fields">
       <div>

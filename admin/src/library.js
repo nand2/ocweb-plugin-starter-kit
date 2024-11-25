@@ -1,7 +1,7 @@
-import AdminPanel from "./components/AdminPanel.vue";
-import AdminSettingsPanel from "./components/AdminSettingsPanel.vue";
+import FileSettingsPanel from "./components/FileSettingsPanel.vue";
+import ContractSettingsPanel from "./components/ContractSettingsPanel.vue";
 
 export { 
-  AdminPanel as Panel0,
-  // AdminSettingsPanel as Panel1
+  ContractSettingsPanel as Panel0,
+  FileSettingsPanel as Panel1,
 };

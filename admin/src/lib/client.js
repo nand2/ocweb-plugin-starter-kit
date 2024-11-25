@@ -3,7 +3,7 @@ import { getContract, toHex, walletActions, publicActions } from 'viem'
 import { abi as themeAboutMePluginABI } from './abi'
 
 
-class ThemeAboutMePluginClient {
+class StarterKitPluginClient {
   #viemClient = null
   #websiteContractAddress = null
   #pluginContractAddress = null
@@ -57,4 +57,4 @@ class ThemeAboutMePluginClient {
 
 }
 
-export { ThemeAboutMePluginClient };
+export { StarterKitPluginClient };
