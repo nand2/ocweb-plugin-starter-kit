@@ -224,7 +224,7 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                                                 "document.getElementById('blocknumber').innerText = data.blocknumber;"
                                             "})"
                                             ".catch(error => {"
-                                                "console.error('Error fetching base fee:', error);"
+                                                "console.error('Error fetching blocknumber:', error);"
                                             "});"
                                     "}"
                                     "setInterval(fetchBlocknumber, 12000);"
