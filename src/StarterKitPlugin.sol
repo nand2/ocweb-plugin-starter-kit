@@ -133,7 +133,7 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
 
 
         //
-        // Serve the main frontend. 2 options : directly from plugin, or proxying from another OCWebsite
+        // Serve the main frontend. 2 method : directly from plugin, and proxying from another OCWebsite
         //
 
         // We take into account the configured rootPath by the user.
@@ -157,7 +157,23 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                 }
 
                 //
-                // Frontend option 1 :
+                // Frontend method 2 : 
+                // Serve the frontend by proxing static files stored in an outside OCWebsite
+                //
+
+                // Uncomment this block to enable the proxying of the frontend OCWebsite
+
+                // // Do the proxy call to the frontend OCWebsite
+                // (statusCode, body, headers) = frontend.request(unprefixedResource, params);
+
+                // // ERC-7774 cache-control header alteration
+                // headers = alterProxiedRequestResponseCacheHeaders(frontend, unprefixedResource, params, headers);
+
+                // return (statusCode, body, headers);
+
+
+                //
+                // Frontend method 1 :
                 // Serve the frontend directly from the plugin
                 //
 
@@ -175,7 +191,30 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                             "</head>"
                             "<body>"
                                 "<h1>Welcome to the Starter Kit Plugin</h1>"
-                                "<p>This is a starter kit to make OCWebsite plugins</p>"
+                                "<p>This is a template to make OCWebsite plugins</p>"
+                                "<h3>Content serving: 2 main methods</h3>"
+                                "<ol>"
+                                    "<li>Directly from the smart contract plugin</li>"
+                                    "<li>Proxing another OCWebsite</li>"
+                                "</ol>"
+                                "<p>This page is served using the first method. To test the second method, uncomment the <code>Frontend method 2</code> code in <code>src/StarterKitPlugin.sol</code></p>"
+                                "<h3>Storing user config for the plugin: 2 main methods</h3>"
+                                "<ol>"
+                                    "<li>Config stored in the plugin smart contract. <br /> Config example: Root path: <code>", rootPath, "</code></li>"
+                                    "<li>Config stored in a file stored via the staticFrontend plugin. <br /> Config example: this plugin use the <code>.config/starter-kit/config.json</code> file, whose content is currently: <code id='json-config'></code></li>"
+                                "</ol>"
+                                "<script>"
+                                    "fetch('/.config/starter-kit/config.json')"
+                                        ".then(response => response.json())"
+                                        ".then(data => {"
+                                            "document.getElementById('json-config').innerText = JSON.stringify(data);"
+                                        "})"
+                                        ".catch(error => {"
+                                            "document.getElementById('json-config').innerText = 'No config.json present yet, use default values';"
+                                        "});"
+                                "</script>"
+                                "<p>This plugin comes with 2 admin panels to configure the plugin with these 2 methods. Go to the <a href='/admin'>admin panel</a>, plugins section, and click on the 'configure' button of this plugin.</p>"
+                                "<h3>Various functionalities testing</h3>"
                                 "<p>Loading data using the JS <em>fetch()</em> function: Current block number: <code id='blocknumber'>Loading...</code></p>"
                                 "<script>"
                                     "function fetchBlocknumber() {"
@@ -192,19 +231,6 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                                     "fetchBlocknumber();"
                                 "</script>"
                                 "<p>Go to <a href='page/1'>Page 1</a></p>"
-                                "<h3>Config: 2 ways to store and load config</h3>"
-                                "<p>1/ Config stored in plugin smart contract: Root path: <code>", rootPath, "</code></p>"
-                                "<p>2/ Config stored in a file stored via the staticFrontend plugin (here: <code>.config/starter-kit/config.json</code>): <code id='json-config'></code></p>"
-                                "<script>"
-                                    "fetch('/.config/starter-kit/config.json')"
-                                        ".then(response => response.json())"
-                                        ".then(data => {"
-                                            "document.getElementById('json-config').innerText = JSON.stringify(data);"
-                                        "})"
-                                        ".catch(error => {"
-                                            "document.getElementById('json-config').innerText = 'Error fetching config.json: no config saved yet?';"
-                                        "});"
-                                "</script>"
                             "</body>"
                         "</html>");
                     statusCode = 200;
@@ -247,21 +273,9 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                     headers[0].value = "application/json";
                 }
 
-                // Remove the frontend option 1 code including this return statement if you want to use the frontend option 2
                 return (statusCode, body, headers);
 
-                //
-                // Frontend option 2 : 
-                // Serve the frontend by proxing static files stored in an outside OCWebsite
-                //
 
-                // Do the proxy call to the frontend OCWebsite
-                (statusCode, body, headers) = frontend.request(unprefixedResource, params);
-
-                // ERC-7774 cache-control header alteration
-                headers = alterProxiedRequestResponseCacheHeaders(frontend, unprefixedResource, params, headers);
-
-                return (statusCode, body, headers);
             }
         }
 

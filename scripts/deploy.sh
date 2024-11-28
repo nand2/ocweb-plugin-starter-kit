@@ -132,8 +132,15 @@ FORGE_CREATE_OPTIONS=
 if [ "$CHAIN_ID" != "31337" ]; then
   FORGE_CREATE_OPTIONS="--verify"
 fi
-forge create --private-key $PRIVATE_KEY $FORGE_CREATE_OPTIONS \
---constructor-args $OCWEBSITE_ADDRESS $ADMIN_OCWEBSITE_ADDRESS $STATIC_FRONTEND_PLUGIN_ADDRESS $OCWEB_ADMIN_PLUGIN_ADDRESS \
---rpc-url $RPC_URL \
-src/StarterKitPlugin.sol:StarterKitPlugin
+exec 5>&1
+OUTPUT="$(forge create --private-key $PRIVATE_KEY $FORGE_CREATE_OPTIONS \
+  --constructor-args $OCWEBSITE_ADDRESS $ADMIN_OCWEBSITE_ADDRESS $STATIC_FRONTEND_PLUGIN_ADDRESS $OCWEB_ADMIN_PLUGIN_ADDRESS \
+  --rpc-url $RPC_URL \
+  src/StarterKitPlugin.sol:StarterKitPlugin | tee >(cat - >&5))"
+# Get the plugin address
+PLUGIN_ADDRESS=$(echo "$OUTPUT" | grep -oP 'Deployed to: \K0x\w+')
+
+# Print the plugin address
+echo ""
+echo "Plugin address: $PLUGIN_ADDRESS"
 
