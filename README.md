@@ -4,6 +4,8 @@ This plugin is a template to help you make your OCWebsite plugin. Fork it, build
 
 ![](./assets/screenshot.png)
 
+![](./assets/screenshot-admin.png)
+
 ## Building
 
 - Install the [OCWeb](https://github.com/nand2/ocweb) repository, and deploy it locally (cf the `Installation` and `Local deployment` sections)
