@@ -82,7 +82,7 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                 name: "starterKit",
                 version: "0.1.0",
                 title: "Starter Kit",
-                subTitle: "A starter kit to make OCWebsite plugins",
+                subTitle: "[Developers] A starter kit to help make OCWebsite plugins",
                 author: "yourName",
                 homepage: "web3://yourAddress.eth/",
                 dependencies: dependencies,
@@ -161,10 +161,22 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                 // Serve the frontend by proxing static files stored in an outside OCWebsite
                 //
 
-                // Uncomment this block to enable the proxying of the frontend OCWebsite
+                // Uncomment the below code block to enable the proxying of the frontend OCWebsite
 
                 // // Do the proxy call to the frontend OCWebsite
                 // (statusCode, body, headers) = frontend.request(unprefixedResource, params);
+
+                // // If your frontend is a single-page app, there are 2 ways the pagination is handled : 
+                // // - The pagination use the old school hashbang method (e.g. /#/page/1). In this case,
+                // //   you don't need to do anything.
+                // // - The pagination use the modern history API (e.g. /page/1). In this case, you need to
+                // //   redirect any 404 to the root path of the frontend. This is done by 
+                // //   the below code block.
+                // //   (Note that the current version of native web3:// browser, EVM browser, does not 
+                // //   support the modern history API, due to issues with electron)
+                // // if(statusCode == 404) {
+                // //     (statusCode, body, headers) = frontend.request(config.rootPath, new KeyValue[](0));
+                // // }
 
                 // // ERC-7774 cache-control header alteration
                 // headers = alterProxiedRequestResponseCacheHeaders(frontend, unprefixedResource, params, headers);
@@ -200,8 +212,8 @@ contract StarterKitPlugin is ERC165, IVersionableWebsitePlugin {
                                 "<h3>Content serving</h3>"
                                 "<p>There are 2 main ways to serve content in an OCWebsite plugin:</p>"
                                 "<ol>"
-                                    "<li>Directly from the smart contract plugin</li>"
-                                    "<li>Proxing another OCWebsite, in which static content has been uploaded</li>"
+                                    "<li>Directly from the smart contract plugin. Best for small or dynamic content.</li>"
+                                    "<li>Proxing another OCWebsite, in which static content has been uploaded. Best for large static frontends.</li>"
                                 "</ol>"
                                 "<p>This page is served using the first method. To test the second method, uncomment the <code>Frontend method 2</code> code in <code>src/StarterKitPlugin.sol</code></p>"
                                 "<h3>Storing user config for the plugin</h3>"
