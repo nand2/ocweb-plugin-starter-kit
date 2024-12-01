@@ -10,6 +10,12 @@ This plugin is a template to help you make your OCWebsite plugin. Fork it, build
 
 - Install the [OCWeb](https://github.com/nand2/ocweb) repository, and deploy it locally (cf the `Installation` and `Local deployment` sections)
 - Clone this repository at the same level as the `ocweb` folder (the `ocweb-plugin-starter-kit` and `ocweb` folders are in the same folder)
+- In the `ocweb-plugin-starter-kit`, run the commands :
+  ```
+  git submodule init
+  git submodule update --init --recursive
+  npm ci
+  ```
 - In the `ocweb` folder, edit `.env`, and set :
   ```
   OCWEB_PLUGINS_BUILD="ocweb-plugin-starter-kit:true:true"
